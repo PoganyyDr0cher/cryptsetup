@@ -1,3 +1,18 @@
+cryptsetup (2:1.4.1-2ubuntu4centrych2) precise; urgency=low
+
+  * debian/copyright: added source location.
+
+ -- Jack Radigan <jprad@centrych.org>  Tue, 07 May 2013 10:50:50 -0400
+
+cryptsetup (2:1.4.1-2ubuntu4centrych1) precise; urgency=low
+
+  * debian/initramfs/cryptroot-script: checks vgname to determine if full disk
+    encryption was selected at installation, if so:
+    - user-friendly prompts are used.
+    - after 3 passphrase failures the system will be powered down.
+
+ -- Jack Radigan <jprad@centrych.org>  Thu, 02 May 2013 17:10:51 -0400
+
 cryptsetup (2:1.4.1-2ubuntu4) precise; urgency=low
 
   * Our swap creation can trigger udev change events, which means udev may be
