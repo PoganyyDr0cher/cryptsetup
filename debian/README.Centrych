@@ -1,0 +1,9 @@
+Cryptsetup for Centrych
+-----------------------
+
+Centrych modifies /usr/share/initramfs-tools/scripts/local-top/cryptroot to
+provide user-friendly prompts at startup when full disk encryption was selected
+during installation.
+
+After 3 failed passphrase attempts the system will be powered off to slow down,
+and/or frustrate unauthorized attempts to access to your system.
