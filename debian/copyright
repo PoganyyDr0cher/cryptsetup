@@ -1,6 +1,7 @@
 Format: http://dep.debian.net/deps/dep5/
 Upstream-Contact: Milan Broz <mbroz@redhat.com>
-Source: http://code.google.com/p/cryptsetup
+Upstream-Source: http://code.google.com/p/cryptsetup
+Source: https://launchpad.net/~centrych/+archive/release/+packages
 
 Files: *
 Copyright: © 2004      Christophe Saout <christophe@saout.de>

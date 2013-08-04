@@ -100,6 +100,11 @@ parse_options()
 			;;
 		lvm=*)
 			cryptlvm=${x#lvm=}
+            case "$cryptlvm" in
+                ssd--vg-*|centrych--vg-*)
+                fde="yes"
+			    ;;
+            esac
 			;;
 		keyscript=*)
 			cryptkeyscript=${x#keyscript=}
@@ -268,7 +273,11 @@ setup_mapping()
 		fi
 
 		if [ -z "$cryptkeyscript" ]; then
-			cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
+            if [ "$fde" = "yes" ] ; then
+			    cryptkey="Disk locked, enter passphrase"
+            else
+			    cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
+            fi
 			if [ -x /bin/plymouth ] && plymouth --ping; then
 				cryptkeyscript="plymouth ask-for-password --prompt"
 				cryptkey=$(printf "$cryptkey")
@@ -280,7 +289,11 @@ setup_mapping()
 
 		if ! crypttarget="$crypttarget" cryptsource="$cryptsource" \
 		     $cryptkeyscript "$cryptkey" | $cryptcreate --key-file=- ; then
-			message "cryptsetup: cryptsetup failed, bad password or options?"
+            if [ "$fde" = "yes" ] ; then
+			    message "Passphrase incorrect"
+            else
+                message "cryptsetup: cryptsetup failed, bad password or options?"
+            fi
 			continue
 		fi
 
@@ -318,14 +331,26 @@ setup_mapping()
 			continue
 		fi
 
-		message "cryptsetup: $crypttarget set up successfully"
+        if [ "$fde" = "yes" ] ; then
+		    message "Disk unlocked, starting system"
+            count=$(($crypttries - 1))
+        else
+            message "cryptsetup: $crypttarget set up successfully"
+        fi
 		break
 	done
 
-	if [ $crypttries -gt 0 ] && [ $count -gt $crypttries ]; then
-		message "cryptsetup: maximum number of tries exceeded for $crypttarget"
-		return 1
-	fi
+    if [ $crypttries -gt 0 ] ; then
+        if [ "$fde" = "yes" ] && [ $count -ge $crypttries ] ; then
+		    message "Retry count exceeded, system halted"
+            /bin/sleep 3
+            /bin/poweroff
+		    exit 1
+        elif [ $count -gt $crypttries ]; then
+		    message "cryptsetup: maximum number of tries exceeded for $crypttarget"
+		    return 1
+	    fi
+    fi
 
 	udev_settle
 	return 0
